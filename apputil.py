@@ -1,13 +1,28 @@
 # your code here ...
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from lyricsgenius import Genius as GeniusAPIClient
-import pandas as pd
 import os
 from time import sleep
-import time
-from numpy.random import uniform
-import requests
+
+# Import required packages
+try:
+    import pandas as pd
+    PANDAS_AVAILABLE = True
+except ImportError:
+    # Fallback if pandas is not available
+    pd = None
+    PANDAS_AVAILABLE = False
+
+try:
+    import requests
+    REQUESTS_AVAILABLE = True
+except ImportError:
+    # Fallback if requests is not available
+    requests = None
+    REQUESTS_AVAILABLE = False
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 
 ## Exercise 1
@@ -32,12 +47,17 @@ class Genius:
             
         self.access_token = access_token
         self.timeout = timeout
-        self.session = requests.Session()
-        self.session.headers.update({
-            "Authorization": f"Bearer {self.access_token}",
-            "Accept": "application/json",
-            "User-Agent": "GeniusAPIClient/1.0"
-        })
+        
+        # Initialize session if requests is available
+        if REQUESTS_AVAILABLE and requests is not None:
+            self.session = requests.Session()
+            self.session.headers.update({
+                "Authorization": f"Bearer {self.access_token}",
+                "Accept": "application/json",
+                "User-Agent": "GeniusAPIClient/1.0"
+            })
+        else:
+            self.session = None
     
     @classmethod
     def from_env_file(cls, filepath: str = "env-1.env", *, timeout: int = 10):
@@ -67,12 +87,16 @@ class Genius:
     
     def request(self, endpoint: str, params: dict = None) -> dict:
         """Make a GET request to the Genius API."""
+        if not REQUESTS_AVAILABLE or requests is None or self.session is None:
+            print("Requests library not available. Cannot make API calls.")
+            return {}
+            
         url = f"{self.BASE_URL}/{endpoint}"
         try:
             response = self.session.get(url, params=params, timeout=self.timeout)
             response.raise_for_status()
             return response.json()
-        except requests.RequestException as e:
+        except Exception as e:  # Use generic exception since requests might not be available
             print(f"An error occurred: {e}")
             return {}
     
@@ -131,7 +155,7 @@ class Genius:
     # - `artist_id`: the Genius Artist ID for that artist, based on the API call
     # - `followers_count`: the number of followers for that artist (if available)
     
-    def get_artists(self, search_terms: list) -> pd.DataFrame:
+    def get_artists(self, search_terms: list):
         """
         Get artist information for multiple search terms.
         
@@ -167,7 +191,12 @@ class Genius:
             # Add a small delay to be respectful to the API
             sleep(0.1)
         
-        return pd.DataFrame(results)
+        # Return DataFrame if pandas is available, otherwise return list of dicts
+        if PANDAS_AVAILABLE and pd is not None:
+            return pd.DataFrame(results)
+        else:
+            # Fallback: return list of dictionaries if pandas is not available
+            return results
     
     # Additional helper methods
     def get_song(self, song_id: int) -> dict:
@@ -182,17 +211,23 @@ class Genius:
     
     def get_lyrics(self, song_url: str) -> str:
         """Fetch lyrics from a song URL."""
+        if not REQUESTS_AVAILABLE or requests is None or self.session is None:
+            return "Requests library not available. Cannot fetch lyrics."
+            
         try:
             response = self.session.get(song_url, timeout=self.timeout)
             response.raise_for_status()
             # Simple extraction of lyrics from HTML (this may need to be adjusted)
-            from bs4 import BeautifulSoup
-            soup = BeautifulSoup(response.text, 'html.parser')
-            lyrics_div = soup.find("div", class_="lyrics")
-            if lyrics_div:
-                return lyrics_div.get_text(strip=True)
-            else:
-                return "Lyrics not found."
-        except requests.RequestException as e:
+            try:
+                from bs4 import BeautifulSoup
+                soup = BeautifulSoup(response.text, 'html.parser')
+                lyrics_div = soup.find("div", class_="lyrics")
+                if lyrics_div:
+                    return lyrics_div.get_text(strip=True)
+                else:
+                    return "Lyrics not found."
+            except ImportError:
+                return "BeautifulSoup not available. Cannot parse lyrics."
+        except Exception as e:
             print(f"An error occurred while fetching lyrics: {e}")
             return "Error fetching lyrics."
