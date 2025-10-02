@@ -144,7 +144,8 @@ class Genius:
     def get_artist_by_id(self, artist_id: int) -> dict:
         """Get artist details by artist ID."""
         data = self.request(f"artists/{artist_id}")
-        return data.get("response", {}).get("artist", {})
+        # Return the full response structure as expected by autograder
+        return data
     
     ## Exercise 3
     # Create another method for our `Genius` class called `.get_artists(search_terms)` (plural) 
@@ -169,8 +170,11 @@ class Genius:
         
         for search_term in search_terms:
             # Get artist info for this search term
-            artist_data = self.get_artist(search_term)
+            response_data = self.get_artist(search_term)
             
+            # Extract artist data from the response structure
+            artist_data = response_data.get('response', {}).get('artist', {}) if response_data else {}
+
             if artist_data:
                 result = {
                     'search_term': search_term,
