@@ -1,81 +1,6 @@
 # your code here ...
 from __future__ import annotations
-from typing import TYPE_CHECKING
-from lyricsgenius import Genius as GeniusAPIClient
-import pandas as pd
-import os
-from time import sleep
-import time
-from numpy.random import uniform
-import requests
-
-
-## Exercise 1
-
-# Create a Python class named `Genius` such that the following code initializes the object,
-# and "saves" the access token as an attribute of the object. You'll need to use this 
-# attribute for Exercises 2 and 3.
-
-class Genius:
-    BASE_URL = "https://api.genius.com"
-    
-    def __init__(self, access_token: str = None, *, timeout: int = 10, env_file: str = None):
-        """Initialize Genius API client."""
-        # If no access_token provided, try to load from environment file
-        if access_token is None and env_file:
-            env_vars = self.load_env_file(env_file)
-            access_token = env_vars.get('ACCESS_TOKEN')
-            if not access_token:
-                raise ValueError(f"ACCESS_TOKEN not found in {env_file}")
-        elif access_token is None:
-            raise ValueError("access_token must be provided or env_file must be specified")
-            
-        self.access_token = access_token
-        self.timeout = timeout
-        self.session = requests.Session()
-        self.session.headers.update({
-            "Authorization": f"Bearer {self.access_token}",
-            "Accept": "application/json",
-            "User-Agent": "GeniusAPIClient/1.0"
-        })
-    
-    @classmethod
-    def from_env_file(cls, filepath: str = "env-1.env", *, timeout: int = 10):
-        """Create Genius instance by loading access token from environment file."""
-        env_vars = cls.load_env_file(filepath)
-        access_token = env_vars.get('ACCESS_TOKEN')
-        if not access_token:
-            raise ValueError(f"ACCESS_TOKEN not found in {filepath}")
-        return cls(access_token=access_token, timeout=timeout)
-    
-    @staticmethod
-    def load_env_file(filepath: str = "env-1.env"):
-        """Load environment variables from a .env file."""
-        env_vars = {}
-        try:
-            with open(filepath, 'r') as file:
-                for line in file:
-                    line = line.strip()
-                    if line and not line.startswith('#') and '=' in line:
-                        key, value = line.split('=', 1)
-                        env_vars[key.strip()] = value.strip()
-                        # Also set as environment variable
-                        os.environ[key.strip()] = value.strip()
-        except FileNotFoundError:
-            print(f"Environment file '{filepath}' not found.")
-        return env_vars
-    
-    def request(self, endpoint: str, params: dict = None) -> dict:
-        """Make a GET request to the Genius API."""
-        url = f"{self.BASE_URL}/{endpoint}"
-        try:
-            response = self.session.get(url, params=params, timeout=self.timeout)
-            response.raise_for_status()
-            return response.json()
-        except requests.RequestException as e:
-            print(f"An error occurred: {e}")
-            return {}
-    
+from     
     def search(self, query: str, per_page: int = 15) -> list:
         """Search for songs, artists, or albums."""
         params = {
@@ -195,4 +120,102 @@ class Genius:
                 return "Lyrics not found."
         except requests.RequestException as e:
             print(f"An error occurred while fetching lyrics: {e}")
+            return "Error fetching lyrics."port TYPE_CHECKING
+from lyricsgenius import Genius as GeniusAPIClient
+import pandas as pd
+import os
+from time import sleep
+import time
+from numpy.random import uniform
+from tqdm import tqdm
+import requests
+
+
+def load_env_file(filepath: str = "env-1.env"):
+    """Load environment variables from a .env file."""
+    env_vars = {}
+    try:
+        with open(filepath, 'r') as file:
+            for line in file:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    env_vars[key.strip()] = value.strip()
+                    # Also set as environment variable
+                    os.environ[key.strip()] = value.strip()
+    except FileNotFoundError:
+        print(f"Environment file '{filepath}' not found.")
+    return env_vars
+
+
+## Exercise 1
+
+# Create a Python class named `Genius` such that the following code initializes the object,
+# and "saves" the access token as an attribute of the object. You'll need to use this 
+# attribute for Exercises 2 and 3.
+
+class Genius:
+    BASE_URL = "https://api.genius.com"
+    
+    def __init__(self, access_token: str, *, timeout: int = 10):
+        """Initialize Genius API client."""
+        self.access_token = access_token
+        self.timeout = timeout
+        self.session = requests.Session()
+        self.session.headers.update({
+            "Authorization": f"Bearer {self.access_token}",
+            "Accept": "application/json",
+            "User-Agent": "GeniusAPIClient/1.0"
+        })
+    
+    def request(self, endpoint: str, params: dict = None) -> dict:
+        """Make a GET request to the Genius API."""
+        url = f"{self.BASE_URL}/{endpoint}"
+        try:
+            response = self.session.get(url, params=params, timeout=self.timeout)
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as e:
+            print(f"An error occurred: {e}")
+            return {}
+            
+    def search(self, query: str, per_page: int = 15) -> list:
+        """Search for songs, artists, or albums.
+        """
+        params = {
+            "q": query,
+            "per_page": per_page
+        }
+        data = self.request("search", params=params)
+        return data.get("response", {}).get("hits", [])
+    
+    def get_song(self, song_id: int) -> dict:
+        """Get song details by song ID."""
+        data = self.request(f"songs/{song_id}")
+        return data.get("response", {}).get("song", {})
+    def get_artist(self, artist_id: int) -> dict:
+        """Get artist details by artist ID."""
+        data = self.request(f"artists/{artist_id}")
+        return data.get("response", {}).get("artist", {})
+    def get_album(self, album_id: int) -> dict:
+        """Get album details by album ID."""
+        data = self.request(f"albums/{album_id}")
+        return data.get("response", {}).get("album", {})
+    def get_lyrics(self, song_url: str) -> str:
+        """Fetch lyrics from a song URL."""
+        try:
+            response = self.session.get(song_url, timeout=self.timeout)
+            response.raise_for_status()
+            # Simple extraction of lyrics from HTML (this may need to be adjusted)
+            from bs4 import BeautifulSoup
+            soup = BeautifulSoup(response.text, 'html.parser')
+            lyrics_div = soup.find("div", class_="lyrics")
+            if lyrics_div:
+                return lyrics_div.get_text(strip=True)
+            else:
+                return "Lyrics not found."
+        except requests.RequestException as e:
+            print(f"An error occurred while fetching lyrics: {e}")
             return "Error fetching lyrics."
+
+        
