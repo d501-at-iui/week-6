@@ -166,21 +166,7 @@ if __name__ == "__main__":
     #                 'Missy Elliot', 
     #                 'Andy Shauf', 
     #                 'Slowdive', 
-    #                 'Men I Trust']
-    
-    # # (optional) if you need to pass multiple arguments
-    # n = 20
-
-    #  # then "unpack" `args` within the function (e.g., args[0])
-    # args = [(t, n) for t in search_terms]
-
-    # with Pool(8) as p:
-    #     results = p.map(genius_to_df, search_terms)
-    #     print("\n Total number of results: ", len(results))
-
-    # df_genius = pd.concat(results)
-
-    # df_genius.to_csv('./data/genius_data_mp.csv', index=False)
+ 
 
     
 

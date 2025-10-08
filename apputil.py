@@ -25,13 +25,17 @@ if TYPE_CHECKING:
     import pandas as pd
 
 
-## Exercise 1
 
-# Create a Python class named `Genius` such that the following code initializes the object,
-# and "saves" the access token as an attribute of the object. You'll need to use this 
-# attribute for Exercises 2 and 3.
 
 class Genius:
+    """ 
+    Exercise 1
+
+    # Create a Python class named `Genius` such that the following code initializes the object,
+    # and "saves" the access token as an attribute of the object. You'll need to use this 
+    # attribute for Exercises 2 and 3.
+    """
+    
     BASE_URL = "https://api.genius.com"
     
     def __init__(self, access_token: str = None, *, timeout: int = 10, env_file: str = None):
@@ -110,10 +114,6 @@ class Genius:
         return data.get("response", {}).get("hits", [])
     
     ## Exercise 2
-    # Create a method for our `Genius` class called `.get_artist(search_term)` which does the following:
-    # 1. Extract the (most likely, "Primary") Artist ID from the first "hit" of the `search_term`.
-    # 2. Use the API path for this Artist ID to pull information about the artist.
-    # 3. **Return** the dictionary containing the resulting JSON object.
     
     def get_artist(self, search_term: str) -> dict:
         """
@@ -148,13 +148,6 @@ class Genius:
         return data
     
     ## Exercise 3
-    # Create another method for our `Genius` class called `.get_artists(search_terms)` (plural) 
-    # which takes in a *list* of search terms, and returns a DataFrame containing a row for each 
-    # search term, and the following columns:
-    # - `search_term`: the raw search term from `search_terms`
-    # - `artist_name`: the (most likely) artist name for the search term
-    # - `artist_id`: the Genius Artist ID for that artist, based on the API call
-    # - `followers_count`: the number of followers for that artist (if available)
     
     def get_artists(self, search_terms: list):
         """
