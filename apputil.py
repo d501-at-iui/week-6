@@ -11,3 +11,4 @@ Python class Genius initialize object, saves access token as an attribute.
 class Genius:
     def __init__ (self, access_token):
         self.access_token = access_token
+# Comment
