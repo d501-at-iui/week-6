@@ -34,7 +34,7 @@ class Genius:
         }
 
     # ------------------------------------------------------------------
-    # Internal Helper Methods
+    # Exercise 1
     # ------------------------------------------------------------------
 
     def _search(self, search_term: str, per_page: int = 10) -> dict:
