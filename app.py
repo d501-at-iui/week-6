@@ -1,21 +1,24 @@
-import streamlit as st
+import os
 
-from apputil import *
+from apputil import Genius
 
 
-st.write(
-'''
-# Week x: [Title]
+def main():
+    access_token = os.getenv("GENIUS_ACCESS_TOKEN")
 
-...
-''')
+    genius = Genius(access_token)
 
-# currently set for integer input
-amount = st.number_input("Exercise Input: ", 
-                         value=None, 
-                         step=1, 
-                         format="%d")
+    artists = [
+        "Audioslave",
+        "Nirvana",
+        "Red Hot Chili Peppers",
+        "System of a Down",
+    ]
 
-if amount is not None:
-    st.write(f"The exercise input was {amount}.")
+    df = genius.get_artists(artists)
 
+    print(df)
+
+
+if __name__ == "__main__":
+    main()
