@@ -33,4 +33,4 @@ temp.json
 
 # environment (ignore one, use the other)
 # environment.yml
-requirements.txt
+requirements.txt*.backup
