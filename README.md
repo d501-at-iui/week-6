@@ -11,9 +11,12 @@ In particular, we'll cover the following topics:
 
 ## requirements
 
-This week's repository requires the following packages:
+This repository requires the following minimum environment setup:
 
 ```
+python version 3.12
+
+packages:
 - ipykernel
 - streamlit
 - seaborn
@@ -27,10 +30,10 @@ This week's repository requires the following packages:
 
 ## setup
 
-*(As of January 2026)*
+*(As of August 2026)*
 
 1. [Fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo#forking-a-repository) this repository.
 2. Clone this repository using [VS Code](https://code.visualstudio.com/docs/sourcecontrol/quickstart) or using [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository#cloning-a-repository).
-3. [Create and activate an environment](https://docs.astral.sh/uv/guides/migration/pip-to-project/#requirements-files) from the requirements.txt file (with `uv pip install -r requirements.txt`), or use an existing environment with the above minimum configuration. *Tip: Use the requirements.txt option for the most reliable setup.*
-4. This week, you will be saving a **.env** file that will be *ignored* by git. Save the .env file shared with you on Canvas into the repository folder. This is needed to run the lab notebook.
+3. Create *and activate* an environment using uv.
+4. Install the packages used for this week [using the requirements.txt file](https://docs.astral.sh/uv/guides/migration/pip-to-project/#requirements-files) (with `uv pip install -r requirements.txt`). Or, use an existing environment with the above minimum configuration. *Tip: Start with an empty environment and use the requirements.txt option to build the same environment used by the autograder.*
 5. Edit your repository, commit as you go, and push your changes to your fork.
